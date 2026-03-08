@@ -1,0 +1,346 @@
+{
+  "timestamp": 1772946525.3274233,
+  "default_tau": 0.45,
+  "K": 11,
+  "fuzziness": 2.0,
+  "cluster_names": {
+    "0": "Space & Astronomy",
+    "1": "PC Hardware & Tech",
+    "2": "Politics & Guns",
+    "3": "Religion & Ethics",
+    "4": "Sports",
+    "5": "Cryptography & Privacy",
+    "6": "Windows & Software",
+    "7": "Medical & Science",
+    "8": "Autos & Motorcycles",
+    "9": "Mac Hardware",
+    "10": "Middle East Politics"
+  },
+  "test_results": [
+    {
+      "test": 1,
+      "name": "cold_miss",
+      "passed": true
+    },
+    {
+      "test": 2,
+      "name": "exact_repeat",
+      "passed": true,
+      "similarity": 1.0
+    },
+    {
+      "test": 3,
+      "name": "paraphrase",
+      "tau": 0.45,
+      "results": [
+        {
+          "seed": "NASA space shuttle launch into orbit",
+          "paraphrase": "space shuttle mission launched by NASA",
+          "sim": 0.8026,
+          "hit": true
+        },
+        {
+          "seed": "Windows 95 driver crash blue screen of death",
+          "paraphrase": "BSOD error caused by Windows display driver",
+          "sim": 0.6032,
+          "hit": true
+        },
+        {
+          "seed": "gun control second amendment rights debate",
+          "paraphrase": "second amendment firearms legislation debate",
+          "sim": 0.8594,
+          "hit": true
+        },
+        {
+          "seed": "Apple Mac processor benchmark performance",
+          "paraphrase": "upgrading the CPU in a Macintosh computer",
+          "sim": 0.5102,
+          "hit": true
+        }
+      ]
+    },
+    {
+      "test": 4,
+      "name": "same_topic_diff_q",
+      "results": [
+        {
+          "seed": "NASA space shuttle launch into orbit",
+          "query": "what is the distance from Earth to Mars",
+          "sim": 0.1394,
+          "hit": false
+        },
+        {
+          "seed": "Windows 95 driver crash blue screen of death",
+          "query": "how do I install a printer on Windows XP",
+          "sim": 0,
+          "hit": false
+        },
+        {
+          "seed": "gun control second amendment rights debate",
+          "query": "who wrote the United States Constitution",
+          "sim": 0.2863,
+          "hit": false
+        }
+      ]
+    },
+    {
+      "test": 5,
+      "name": "cross_cluster",
+      "all_correct": true,
+      "results": [
+        {
+          "seed": "NASA space shuttle launch into orbit",
+          "query": "automatic rifle cleaning and maintenance",
+          "sim": 0,
+          "hit": false,
+          "correct": true
+        },
+        {
+          "seed": "Windows 95 driver crash blue screen",
+          "query": "Jewish religious practices on Yom Kippur",
+          "sim": 0,
+          "hit": false,
+          "correct": true
+        },
+        {
+          "seed": "Apple Mac processor benchmark performance",
+          "query": "Middle East peace negotiations 1993",
+          "sim": 0,
+          "hit": false,
+          "correct": true
+        }
+      ]
+    },
+    {
+      "test": 6,
+      "name": "tau_sensitivity",
+      "seed": "NASA space shuttle launch into orbit",
+      "test_q": "space shuttle mission launched by NASA",
+      "fixed_sim": 0.8026,
+      "results": [
+        {
+          "tau": 0.5,
+          "hit": true,
+          "sim": 0.8026,
+          "note": "\u26a0\ufe0f  too permissive \u2014 loosely related queries may hit"
+        },
+        {
+          "tau": 0.55,
+          "hit": true,
+          "sim": 0.8026,
+          "note": "\u26a0\ufe0f  too permissive \u2014 loosely related queries may hit"
+        },
+        {
+          "tau": 0.6,
+          "hit": true,
+          "sim": 0.8026,
+          "note": "\u26a0\ufe0f  matches topic area, not specific question"
+        },
+        {
+          "tau": 0.65,
+          "hit": true,
+          "sim": 0.8026,
+          "note": "\u26a0\ufe0f  matches topic area, not specific question"
+        },
+        {
+          "tau": 0.7,
+          "hit": true,
+          "sim": 0.8026,
+          "note": "\u26a0\ufe0f  moderate \u2014 most paraphrases hit, some false positives"
+        },
+        {
+          "tau": 0.75,
+          "hit": true,
+          "sim": 0.8026,
+          "note": "\u2705 sweet spot \u2014 paraphrases hit, diff questions miss"
+        },
+        {
+          "tau": 0.78,
+          "hit": true,
+          "sim": 0.8026,
+          "note": "\u2705 sweet spot \u2014 paraphrases hit, diff questions miss"
+        },
+        {
+          "tau": 0.8,
+          "hit": true,
+          "sim": 0.8026,
+          "note": "\u26a0\ufe0f  right at paraphrase boundary \u2014 borderline"
+        },
+        {
+          "tau": 0.85,
+          "hit": false,
+          "sim": 0.8026,
+          "note": "\u26a0\ufe0f  above paraphrase ceiling \u2014 cache misses real paraphrases"
+        },
+        {
+          "tau": 0.9,
+          "hit": false,
+          "sim": 0.8026,
+          "note": "\u26a0\ufe0f  above paraphrase ceiling \u2014 cache misses real paraphrases"
+        }
+      ]
+    }
+  ],
+  "tau_sensitivity": [
+    {
+      "tau": 0.5,
+      "hit": true,
+      "sim": 0.8026,
+      "note": "\u26a0\ufe0f  too permissive \u2014 loosely related queries may hit"
+    },
+    {
+      "tau": 0.55,
+      "hit": true,
+      "sim": 0.8026,
+      "note": "\u26a0\ufe0f  too permissive \u2014 loosely related queries may hit"
+    },
+    {
+      "tau": 0.6,
+      "hit": true,
+      "sim": 0.8026,
+      "note": "\u26a0\ufe0f  matches topic area, not specific question"
+    },
+    {
+      "tau": 0.65,
+      "hit": true,
+      "sim": 0.8026,
+      "note": "\u26a0\ufe0f  matches topic area, not specific question"
+    },
+    {
+      "tau": 0.7,
+      "hit": true,
+      "sim": 0.8026,
+      "note": "\u26a0\ufe0f  moderate \u2014 most paraphrases hit, some false positives"
+    },
+    {
+      "tau": 0.75,
+      "hit": true,
+      "sim": 0.8026,
+      "note": "\u2705 sweet spot \u2014 paraphrases hit, diff questions miss"
+    },
+    {
+      "tau": 0.78,
+      "hit": true,
+      "sim": 0.8026,
+      "note": "\u2705 sweet spot \u2014 paraphrases hit, diff questions miss"
+    },
+    {
+      "tau": 0.8,
+      "hit": true,
+      "sim": 0.8026,
+      "note": "\u26a0\ufe0f  right at paraphrase boundary \u2014 borderline"
+    },
+    {
+      "tau": 0.85,
+      "hit": false,
+      "sim": 0.8026,
+      "note": "\u26a0\ufe0f  above paraphrase ceiling \u2014 cache misses real paraphrases"
+    },
+    {
+      "tau": 0.9,
+      "hit": false,
+      "sim": 0.8026,
+      "note": "\u26a0\ufe0f  above paraphrase ceiling \u2014 cache misses real paraphrases"
+    }
+  ],
+  "pair_similarities": [
+    {
+      "seed": "NASA space shuttle launch into orbit",
+      "test": "space shuttle mission launched by NASA",
+      "similarity": 0.8025868056662809,
+      "expected_hit": true,
+      "label": "A-paraphrase"
+    },
+    {
+      "seed": "Windows 95 driver crash blue screen of death",
+      "test": "BSOD error caused by Windows display driver",
+      "similarity": 0.6031853793152951,
+      "expected_hit": true,
+      "label": "A-paraphrase"
+    },
+    {
+      "seed": "gun control second amendment rights debate",
+      "test": "second amendment firearms legislation debate",
+      "similarity": 0.8594334125518799,
+      "expected_hit": true,
+      "label": "A-paraphrase"
+    },
+    {
+      "seed": "Apple Mac processor benchmark performance",
+      "test": "upgrading the CPU in a Macintosh computer",
+      "similarity": 0.5101824998855591,
+      "expected_hit": true,
+      "label": "A-paraphrase"
+    },
+    {
+      "seed": "what causes the Northern Lights aurora borealis",
+      "test": "how do auroras form in the upper atmosphere",
+      "similarity": 0.6616322599868631,
+      "expected_hit": true,
+      "label": "A-paraphrase"
+    },
+    {
+      "seed": "electric vehicle battery range miles per charge",
+      "test": "how far can an EV drive on a single charge",
+      "similarity": 0.6857867240905762,
+      "expected_hit": true,
+      "label": "A-paraphrase"
+    },
+    {
+      "seed": "NASA space shuttle launch into orbit",
+      "test": "what is the distance from Earth to Mars",
+      "similarity": 0.13937872648239136,
+      "expected_hit": false,
+      "label": "B-same-topic"
+    },
+    {
+      "seed": "Windows 95 driver crash blue screen of death",
+      "test": "how do I install a printer on Windows XP",
+      "similarity": 0.1437720252207526,
+      "expected_hit": false,
+      "label": "B-same-topic"
+    },
+    {
+      "seed": "gun control second amendment rights debate",
+      "test": "who wrote the United States Constitution",
+      "similarity": 0.2862607538700104,
+      "expected_hit": false,
+      "label": "B-same-topic"
+    },
+    {
+      "seed": "Apple Mac processor benchmark performance",
+      "test": "how much does a MacBook Pro cost",
+      "similarity": 0.3990699052810669,
+      "expected_hit": false,
+      "label": "B-same-topic"
+    },
+    {
+      "seed": "NASA space shuttle launch into orbit",
+      "test": "automatic rifle cleaning and maintenance",
+      "similarity": 0.05320549011230469,
+      "expected_hit": false,
+      "label": "C-cross-cluster"
+    },
+    {
+      "seed": "Windows 95 driver crash blue screen of death",
+      "test": "Jewish religious practices on Yom Kippur",
+      "similarity": -0.12816802049183917,
+      "expected_hit": false,
+      "label": "C-cross-cluster"
+    },
+    {
+      "seed": "electric vehicle battery range miles per charge",
+      "test": "cryptography public key encryption methods",
+      "similarity": -0.0016931267455220222,
+      "expected_hit": false,
+      "label": "C-cross-cluster"
+    },
+    {
+      "seed": "Apple Mac processor benchmark performance",
+      "test": "Middle East peace negotiations 1993",
+      "similarity": -0.05200060456991196,
+      "expected_hit": false,
+      "label": "C-cross-cluster"
+    }
+  ]
+}

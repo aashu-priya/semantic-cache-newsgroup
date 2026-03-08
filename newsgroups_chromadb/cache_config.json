@@ -1,0 +1,22 @@
+{
+  "default_tau": 0.45,
+  "K": 11,
+  "fuzziness_m": 2.0,
+  "secondary_threshold": 0.2,
+  "cluster_names": {
+    "0": "Space & Astronomy",
+    "1": "PC Hardware & Tech",
+    "2": "Politics & Guns",
+    "3": "Religion & Ethics",
+    "4": "Sports",
+    "5": "Cryptography & Privacy",
+    "6": "Windows & Software",
+    "7": "Medical & Science",
+    "8": "Autos & Motorcycles",
+    "9": "Mac Hardware",
+    "10": "Middle East Politics"
+  },
+  "embedding_model": "all-MiniLM-L6-v2",
+  "embedding_dim": 384,
+  "persist_dir": "/content/drive/MyDrive/twenty+newsgroups/newsgroups_chromadb"
+}

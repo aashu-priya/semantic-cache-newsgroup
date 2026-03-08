@@ -1,0 +1,22 @@
+{
+  "K": 11,
+  "fuzziness_m": 2.0,
+  "cluster_names": {
+    "0": "Space & Astronomy",
+    "1": "PC Hardware & Tech",
+    "2": "Politics & Guns",
+    "3": "Religion & Ethics",
+    "4": "Sports",
+    "5": "Cryptography & Privacy",
+    "6": "Windows & Software",
+    "7": "Medical & Science",
+    "8": "Autos & Motorcycles",
+    "9": "Mac Hardware",
+    "10": "Middle East Politics"
+  },
+  "centroids_path": "/content/drive/MyDrive/twenty+newsgroups/newsgroups_chromadb/kmeans_centroids.npy",
+  "memberships_path": "/content/drive/MyDrive/twenty+newsgroups/newsgroups_chromadb/fuzzy_memberships.npy",
+  "n_docs": 15176,
+  "entropy_mean": 2.3679597714051877,
+  "entropy_max": 2.3978952727983707
+}
