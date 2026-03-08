@@ -273,4 +273,4 @@ open http://localhost:8000
 
 ---
 
-*Built as part of a machine learning internship project — Parts 1–4 developed iteratively on Google Colab with final deployment packaged as a local FastAPI service.*
+*Built as part of a machine learning internship project — Parts 1–3 developed iteratively on Google Colab with final deployment packaged as a local FastAPI service.*
