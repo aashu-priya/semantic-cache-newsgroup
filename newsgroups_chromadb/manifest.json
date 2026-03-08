@@ -56,17 +56,17 @@
     "kmeans_centroids": "/Users/ashupriya/Desktop/semantic_cache_service/newsgroups_chromadb/kmeans_centroids.npy",
     "cluster_metadata": "/Users/ashupriya/Desktop/semantic_cache_service/newsgroups_chromadb/cluster_metadata.json",
     "cluster_names": {
-      "0": "Space & Astronomy",
-      "1": "PC Hardware & Tech",
-      "2": "Politics & Guns",
-      "3": "Religion & Ethics",
-      "4": "Sports",
-      "5": "Cryptography & Privacy",
-      "6": "Windows & Software",
-      "7": "Medical & Science",
-      "8": "Autos & Motorcycles",
-      "9": "Mac Hardware",
-      "10": "Middle East Politics"
+      "0": "Autos & Motorcycles",
+      "1": "Cryptography & Electronics",
+      "2": "PC & Mac Hardware",
+      "3": "Politics & Guns",
+      "4": "Medical & Science",
+      "5": "For Sale & Electronics",
+      "6": "Space & Science",
+      "7": "Sports",
+      "8": "Windows & Graphics",
+      "9": "Middle East Politics",
+      "10": "Religion & Atheism"
     }
   },
   "part3": {
