@@ -301,6 +301,7 @@ semantic-cache-newsgroup/
 │   └── cluster_metadata.json         # Cluster names, sizes, assignments
 │
 ├── outputs/                           # All generated plots with explanations
+│   ├── README.md                      # What each plot shows, how to read it, and why it matters
 │   ├── plot_k_selection.png           # Silhouette scores K=2..15
 │   ├── plot_umap_clusters.png         # 2D embedding projection
 │   ├── plot_entropy_map.png           # Per-document uncertainty
@@ -366,59 +367,33 @@ These are engineering observations, not disclaimers:
 
 ## Technical Decisions Worth Noting
 
-These are the choices that are not visible in the code but shaped every part of the system:
+- **Secondary bucket threshold = 0.20** — captures genuine boundary ambiguity without triggering on noise (typically < 0.05). Too low destroys the O(N/K) advantage; too high causes false misses on cross-topic queries.
 
-- **Fuzzy membership threshold for secondary bucket search set at 0.20, not lower or higher**
+- **Fuzziness m=2.0** — m=1.0 collapses to hard clustering; m≥3.0 makes distributions so flat that primary cluster routing breaks. m=2.0 gives clear primary assignments while preserving meaningful ambiguity on boundary documents.
 
-  When a query's secondary cluster membership exceeds 0.20, the cache searches that bucket too. At m=2.0 fuzziness, a document split evenly across two clusters shows ~0.50/0.50. A threshold of 0.20 captures genuine topical ambiguity without triggering on noise-level membership scores, which typically fall below 0.05. Setting it too low means every query searches multiple buckets and the O(N/K) lookup advantage disappears entirely. Setting it too high means legitimate boundary queries — a post about encryption law sitting between Cryptography and Politics — miss results in their secondary bucket and return a false miss.
+- **Cosine over Euclidean** — unit-norm vectors make cosine similarity a single dot product. Euclidean requires 384 squared differences per pair. Cosine scores also map directly onto τ with no inversion step.
 
-- **Fuzziness parameter m=2.0 chosen after evaluating the extremes**
+- **ChromaDB in-process** — eliminates the network hop on every miss. Tradeoff: index can't be shared across replicas. Correct for a single-instance deployment; a separate ChromaDB server is the obvious next step for horizontal scaling.
 
-  FCM with m=1.0 degenerates toward hard clustering — documents get near-binary assignments and the membership distribution loses meaning. m=3.0 or higher produces distributions so flat that primary cluster assignment becomes unreliable: every document spreads almost uniformly across all K buckets, which breaks the bucket routing logic entirely. m=2.0 is the standard starting point, and the entropy analysis confirmed it produces the right sharpness for this corpus — most documents have a clear primary cluster, while genuinely ambiguous ones still spread meaningfully across two or three rather than diffusing across all eleven.
+- **Vanilla frontend, no framework** — one `index.html`, no npm, no bundler. `uvicorn main:app` is genuinely the only command needed. A React pipeline would add complexity orthogonal to the ML system being evaluated.
 
-- **Cosine similarity chosen over Euclidean distance for all cache lookup operations**
-
-  Unit-norm embeddings make cosine similarity mathematically equivalent to a dot product — a single vectorised matrix multiplication. Euclidean distance on the same 384-dimensional vectors requires computing squared differences across every dimension per pair, which is slower and produces scores that are harder to interpret directly. At cache lookup time, where latency is the primary concern, this is not a minor optimisation. It also means similarity scores map cleanly onto the τ threshold without any distance-to-similarity inversion step.
-
-- **ChromaDB run in-process rather than as a separate server**
-
-  Running ChromaDB in-process eliminates a network hop on every cache miss — the vector search happens in the same Python process as the FastAPI service with no socket overhead. The tradeoff is that the index cannot be shared across multiple service instances. For a single-service deployment on a local machine or single cloud instance, in-process is the correct choice. A multi-replica deployment would require a separate ChromaDB server, which is the obvious next architectural step if the service needed horizontal scaling.
-
-- **Frontend built with vanilla HTML, CSS, and JavaScript — no framework, no build step**
-
-  The UI is a single `index.html` file served as a static asset. No npm, no bundler, no separate build pipeline. This was a deliberate decision to keep the deployment surface at the minimum: `uvicorn main:app` is genuinely the only command needed to run the entire system. A React or Vue frontend would add a parallel build pipeline with its own dependency tree that has nothing to do with the ML system being evaluated.
-
-- **FastAPI state loaded once at startup via the `lifespan` context manager**
-
-  The cache object, ChromaDB client, embedding model, and cluster centroids are all initialised once when the server starts via FastAPI's `lifespan` hook, rather than as module-level globals or lazy-initialised on the first request. This means the first query is not slow while the model loads. It also means all application state is cleanly scoped to the server lifecycle — no global mutation, no race condition if two requests arrive before initialisation completes, and a clean shutdown path when the server stops.
+- **`lifespan` context manager for state** — model, cache, ChromaDB client, and centroids load once at startup. First request is never slow; no global mutation; no race condition under concurrent initialisation.
 
 ---
 
 ## What I Learned Building This
 
-- **The corpus tells you what the threshold should be — papers don't**
+- **The corpus sets the threshold — papers don't.** Published MiniLM benchmarks suggest τ=0.75–0.90. On this corpus the gap sits at 0.44. Copying a published value would have made the cache miss every valid hit. The right threshold has to be measured, not looked up.
 
-  Every benchmark I found for MiniLM similarity thresholds suggested τ in the range of 0.75–0.90 for paraphrase detection. On 20 Newsgroups, paraphrase similarity peaks at ~0.80 and the clean separation gap sits at 0.44. If I had copied a threshold from a paper without measuring, the cache would have missed every valid paraphrase hit on this specific corpus. The entropy analysis — discovering that `entropy_mean ≈ entropy_max` — is what prompted me to investigate the similarity distributions rather than trust published values. The right threshold is a property of the data, not the model, and cannot be looked up anywhere.
+- **Fuzzy membership changes what the system can do, not just how it looks.** I expected the distributions to feed a mostly-hard routing decision. In practice, queries about encryption policy miss cached crypto law results unless both the Cryptography and Politics buckets are searched. Hard clustering would silently return a miss every time.
 
-- **Fuzzy clustering is not just theoretically nicer — it changes what the system can actually do**
+- **Dependency conflicts are engineering problems, not packaging noise.** The chromadb + numpy + opentelemetry crash produced an `AttributeError` on import with no useful message. Bisecting package versions to find the cause took longer than any single feature. Pinning with explanatory comments is the minimum documentation a reproducible system needs.
 
-  Going into Part 2, I expected the fuzzy output to be an interesting analysis artifact that fed into a mostly hard routing decision downstream. The secondary bucket search turned out to matter concretely: queries about encryption policy miss cached results about crypto law unless both the Cryptography and Politics clusters are searched. Hard clustering would silently return a miss for those queries every single time with no indication that a relevant cached result existed. The membership distribution is doing real operational work, not just producing a more nuanced visualisation.
+- **O(N/K) only reveals itself at scale.** At 10 entries, flat and bucketed scans are both instant. The architectural choice only matters at hundreds or thousands of entries — which is exactly when you don't want to redesign the data structure.
 
-- **Dependency management is an engineering problem, not a packaging chore**
+- **The miss path shapes user experience as much as the hit path.** Every first-time query goes through the miss path. Keeping it at ~250ms meant cutting every unnecessary step: no membership recomputation after storage, no synchronous writes, no redundant similarity checks.
 
-  Debugging the chromadb + numpy + opentelemetry version conflict took longer than any individual feature in the project. The failure mode was an `AttributeError` on import — no warning, no clear message pointing at the conflict, just a crash that required bisecting package versions to diagnose. After going through that once, pinning every version with a comment explaining exactly why it is pinned stopped feeling like defensive overhead and started feeling like the minimum documentation any system needs to be reproducible by another person on a different machine.
-
-- **O(N/K) matters more as the cache grows, not at the start**
-
-  At 10 cached entries, a flat scan and a cluster-bucketed scan are both effectively instant — the difference is invisible. The architectural choice only becomes measurable at scale, when the cache has accumulated hundreds or thousands of entries. Designing the bucketed structure from the beginning meant the cache would stay fast without a structural rewrite as usage grew. Retrofitting a flat cache into a bucketed one later would have required changing the data structure, the lookup logic, the stats tracking, and the delete path simultaneously — a much larger change than building it correctly the first time.
-
-- **Designing for the miss path matters as much as designing for the hit path**
-
-  Most cache design thinking focuses on the hit case — how fast can a stored result be returned. The miss path here determines the experience for every first-time query and for any query that genuinely needs a fresh search, which is the majority of traffic early in the cache's life. Keeping miss latency at ~250ms required being deliberate about not adding unnecessary work: no recomputing memberships after a result is stored, no synchronous disk writes during the request, no redundant similarity checks on the result before returning it.
-
-- **Building from scratch forces you to understand what the abstraction is actually doing**
-
-  Using Redis or a caching library would have reduced the cache to a few configuration lines. Writing it from scratch — the bucket dict, the cosine similarity scan, the stats counters, the flush logic — made it impossible to treat the cache as a black box. Every design question had to be answered explicitly: what does the data structure look like, how does cluster membership change the lookup order, what exactly gets reset on a DELETE. That process produced a system where every behaviour is understood and intentional rather than inherited from a library default.
+- **Building from scratch makes the abstraction legible.** Redis would have been a config file. Writing the bucket dict, similarity scan, stats counters, and flush logic from scratch meant every behaviour had to be explicitly designed — none of it inherited from a library default.
 
 ---
 
