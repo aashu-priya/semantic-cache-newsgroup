@@ -532,5 +532,3 @@ These are engineering observations, not disclaimers:
 *Built end-to-end as a machine learning engineering project —  
 Parts 1–3 developed iteratively on Google Colab, final service packaged as a local FastAPI deployment with full Docker support.*
 
-*Submitted to: recruitments@trademarkia.com*  
-*Submission form: https://forms.gle/4RpHZpAi8rbG9QCE8*git add .
